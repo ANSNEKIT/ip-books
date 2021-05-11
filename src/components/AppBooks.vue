@@ -1,41 +1,103 @@
 <template>
   <section class="card">
-    <h3 class="text-center mb-3">Список книг:</h3>
-    <p v-if="!books.length" class="text-center">Здесь пока ничего нет</p>
-  </section>
-  <section class="card" v-if="books.length">
     <div class="book">
       <div class="book-info">
         <div class="d-flex mb-3">
-          <h3 class="book-name"><strong>Евгений Онегин</strong></h3>
-          <button id="favorite-btn" type="button" class="btn">
-            <favorite-border />
+          <h3 class="book-name">
+            <strong>{{ name }}</strong>
+          </h3>
+          <button
+            @click="toggleFavouriteIcon"
+            id="favorite-btn"
+            type="button"
+            class="btn"
+          >
+            <favourite-filled v-if="isLocalFavourite" />
+            <favourite-border v-else />
           </button>
         </div>
-        <p class="book-author">Автор: <strong>Пушкин А.С.</strong></p>
+        <p class="book-author">
+          Автор: <strong>{{ author }}</strong>
+        </p>
         <p class="book-date">
-          Дата выхода: <time><strong>2018</strong></time>
+          Дата выхода:
+          <time
+            ><strong>{{ year }}</strong></time
+          >
         </p>
       </div>
 
       <div class="book-rating">
         <h5 class="text-center">Рейтинг:</h5>
-        <h2 class="text-center">123</h2>
-        <button type="button" class="button warning">+</button>
-        <button type="button" class="button warning">-</button>
+        <h2 class="text-center">{{ localRating }}</h2>
+        <button
+          v-if=isActiveButton
+          @click="upCount"
+          type="button"
+          class="button warning"
+        >+</button>
+        <button
+          v-if=isActiveButton
+          @click="downCount"
+          type="button"
+          class="button warning"
+        >-</button>
       </div>
     </div>
-
   </section>
 </template>
 
 <script>
-import FavoriteBorder from './FavoriteBorder.vue';
+import FavouriteBorder from './FavouriteBorder.vue';
+import FavouriteFilled from './FavouriteFilled.vue';
 
 export default {
-  components: { FavoriteBorder },
+  components: { FavouriteBorder, FavouriteFilled },
   name: 'appBooks',
-  inject: ['books'],
+  inject: ['dataBooks', 'favoriteBooks'],
+  props: {
+    id: Number,
+    name: String,
+    author: String,
+    year: String,
+    rating: Number,
+    isChangeRating: Boolean,
+    favourite: Boolean,
+    identity: Number,
+  },
+  emits: {
+    'add-favourite': (val) => typeof val === 'number',
+    'up-count': (val) => typeof val === 'number',
+    'down-count': (val) => typeof val === 'number',
+  },
+
+  data() {
+    return {
+      isLocalFavourite: this.favourite,
+      isActiveButton: this.isChangeRating,
+      localRating: this.rating,
+    };
+  },
+
+  methods: {
+    toggleFavouriteIcon() {
+      this.isLocalFavourite = !this.isLocalFavourite;
+      this.$emit('add-favourite', this.identity);
+    },
+
+    upCount() {
+      this.localRating += 1;
+      this.isActiveButton = !this.isActiveButton;
+      this.$emit('up-count', this.identity);
+    },
+
+    downCount() {
+      this.localRating -= 1;
+      this.isActiveButton = !this.isActiveButton;
+      this.$emit('down-count', this.identity);
+    },
+  },
+
 };
 </script>
 
