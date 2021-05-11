@@ -4,7 +4,7 @@
       <div class="book-info">
         <div class="d-flex mb-3">
           <h3 class="book-name">
-            <strong>{{ name }}</strong>
+            <strong>{{ book.name }}</strong>
           </h3>
           <button
             @click="toggleFavouriteIcon"
@@ -17,22 +17,28 @@
           </button>
         </div>
         <p class="book-author">
-          Автор: <strong>{{ author }}</strong>
+          Автор: <strong>{{ book.authors }}</strong>
         </p>
         <p class="book-publisher">
-          Издательство: <strong>{{ publisher }}</strong>
+          Издательство: <strong>{{ book.publisher }}</strong>
         </p>
         <p class="book-date">
           Дата выхода:
           <time
-            ><strong>{{ year }}</strong></time
+            ><strong>{{ book.year }}</strong></time
           >
         </p>
       </div>
 
       <div class="book-rating">
         <h5 class="text-center">Рейтинг:</h5>
-        <h2 class="text-center">{{ localRating }}</h2>
+        <h2
+          class="text-center"
+          :class="{
+            'rating-green': localRating > 0,
+            'rating-red': localRating < 0,
+          }"
+        >{{ localRating }}</h2>
         <button
           v-if=isActiveButton
           @click="upCount"
@@ -60,11 +66,7 @@ export default {
   inject: ['dataBooks', 'favoriteBooks'],
   props: {
     id: Number,
-    name: String,
-    author: String,
-    publisher: String,
-    year: String,
-    rating: Number,
+    book: Object,
     isChangeRating: Boolean,
     favourite: Boolean,
     identity: Number,
@@ -77,9 +79,9 @@ export default {
 
   data() {
     return {
-      isLocalFavourite: this.favourite,
+      isLocalFavourite: this.book.favourite,
       isActiveButton: this.isChangeRating,
-      localRating: this.rating,
+      localRating: this.book.rating,
     };
   },
 
@@ -129,5 +131,12 @@ export default {
   .book .book-date {
     margin: 0;
     margin-bottom: 10px;
+  }
+  .rating-green {
+    color: #42b983;
+  }
+
+  .rating-red {
+    color: #e53935;
   }
 </style>

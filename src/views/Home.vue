@@ -10,22 +10,16 @@
         алвафиту, дате выхода, рейтингу.
       </p>
       <app-search @search="searchBooks"></app-search>
-      <app-filters></app-filters>
+      <app-filters @filters="dispatchFilteredBooks"></app-filters>
       <app-sort></app-sort>
     </div>
 
     <app-no-books v-if="!books.length"></app-no-books>
     <app-books
       v-else
-      v-for="(book, identity) in books"
+      v-for="(book, identity) in filteredBooks"
       :key="book.id"
-      :id="book.id"
-      :name="book.name"
-      :author="book.author"
-      :publisher="book.publisher"
-      :year="book.year"
-      :rating="book.rating"
-      :favourite="book.favourite"
+      :book="book"
       :identity="identity"
       :isChangeRating="book.isChangeRating"
       @add-favourite="dispatchFavorite"
@@ -55,6 +49,9 @@ export default {
   data() {
     return {
       books: this.dataBooks,
+      filteredBooks: this.dataBooks,
+      searchParams: '',
+      filterParams: {},
     };
   },
   methods: {
@@ -129,9 +126,29 @@ export default {
       const resultBooks = this.dataBooks.filter((book) => {
         return book.name.toLowerCase().includes(str.toLowerCase());
       });
-      this.books = resultBooks;
+      this.filteredBooks = resultBooks;
+    },
+
+    dispatchFilteredBooks(options) {
+      // eslint-disable-next-line arrow-body-style
+      const publisherFilter = this.filteredBooks.filter((book) => {
+        return book.publisher.toLowerCase().includes(options.publisher.toLowerCase());
+      });
+
+      // eslint-disable-next-line arrow-body-style
+      const yearFilter = publisherFilter.filter((book) => {
+        return book.year.toLowerCase().includes(options.year.toLowerCase());
+      });
+
+      // eslint-disable-next-line arrow-body-style
+      const authorsFilter = yearFilter.filter((book) => {
+        return book.authors.toLowerCase().includes(options.authors.toLowerCase());
+      });
+
+      this.filteredBooks = authorsFilter;
     },
   },
+
 };
 </script>
 

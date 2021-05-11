@@ -11,7 +11,7 @@
           id="name_books"
           type="text"
           placeholder="Евгений Онегин"
-          v-model="name"
+          v-model.trim="name"
           @keydown.enter="dispatchSearch"
         />
       </div>
