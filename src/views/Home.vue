@@ -292,6 +292,28 @@ export default {
       return this.filteredBooks;
     },
   },
+
+  created() {
+    const sortedBooks = localStorage.getItem('sorted-books');
+    const filteredBooks = localStorage.getItem('filtered-books');
+
+    if (sortedBooks) {
+      this.sortedBooks = JSON.parse(sortedBooks);
+    }
+    if (filteredBooks) {
+      this.filteredBooks = JSON.parse(sortedBooks);
+    }
+  },
+
+  watch: {
+    sortedBooks() {
+      localStorage.setItem('sorted-books', JSON.stringify(this.sortedBooks));
+    },
+
+    filteredBooks() {
+      localStorage.setItem('filtered-books', JSON.stringify(this.filteredBooks));
+    },
+  },
 };
 </script>
 

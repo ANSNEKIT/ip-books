@@ -43,6 +43,20 @@ export default {
     },
   },
 
+  created() {
+    const favourites = localStorage.getItem('favourites');
+
+    if (favourites) {
+      this.favourites = JSON.parse(favourites);
+    }
+  },
+
+  watch: {
+    favourites() {
+      localStorage.setItem('favourites', JSON.stringify(this.favourites));
+    },
+  },
+
 };
 </script>
 
