@@ -11,9 +11,17 @@
           id="name_books"
           type="text"
           placeholder="Евгений Онегин"
+          v-model="name"
+          @keydown.enter="dispatchSearch"
         />
       </div>
-      <button type="button" class="button col-lg-2 ms-3">Поиск</button>
+      <button
+        @click="dispatchSearch"
+        type="button"
+        class="button primary col-lg-2 ms-3"
+      >
+        Поиск
+      </button>
     </div>
     <hr />
   </div>
@@ -22,6 +30,19 @@
 <script>
 export default {
   name: 'appSearch',
+  emits: {
+    search: (val) => typeof val === 'string',
+  },
+  data() {
+    return {
+      name: '',
+    };
+  },
+  methods: {
+    dispatchSearch() {
+      this.$emit('search', this.name);
+    },
+  },
 };
 </script>
 

@@ -9,14 +9,12 @@
         реализована фильтрация по разным категориям. Сортировать можно по
         алвафиту, дате выхода, рейтингу.
       </p>
-      <app-search></app-search>
+      <app-search @search="searchBooks"></app-search>
       <app-filters></app-filters>
       <app-sort></app-sort>
     </div>
 
-    <app-no-books
-      v-if="!books.length"
-    ></app-no-books>
+    <app-no-books v-if="!books.length"></app-no-books>
     <app-books
       v-else
       v-for="(book, identity) in books"
@@ -24,6 +22,7 @@
       :id="book.id"
       :name="book.name"
       :author="book.author"
+      :publisher="book.publisher"
       :year="book.year"
       :rating="book.rating"
       :favourite="book.favourite"
@@ -125,8 +124,14 @@ export default {
       return this.dataBooks[id];
     },
 
+    searchBooks(str) {
+      // eslint-disable-next-line arrow-body-style
+      const resultBooks = this.dataBooks.filter((book) => {
+        return book.name.toLowerCase().includes(str.toLowerCase());
+      });
+      this.books = resultBooks;
+    },
   },
-
 };
 </script>
 

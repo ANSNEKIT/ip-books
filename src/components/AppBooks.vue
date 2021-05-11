@@ -19,6 +19,9 @@
         <p class="book-author">
           Автор: <strong>{{ author }}</strong>
         </p>
+        <p class="book-publisher">
+          Издательство: <strong>{{ publisher }}</strong>
+        </p>
         <p class="book-date">
           Дата выхода:
           <time
@@ -59,6 +62,7 @@ export default {
     id: Number,
     name: String,
     author: String,
+    publisher: String,
     year: String,
     rating: Number,
     isChangeRating: Boolean,
@@ -106,7 +110,8 @@ export default {
     display: flex;
     justify-content: space-between;
   }
-  .book .book-name {
+  .book .book-name
+  {
     margin: 0;
   }
 
@@ -115,7 +120,8 @@ export default {
     padding: 0;
   }
 
-  .book .book-author {
+  .book .book-author,
+  .book .book-publisher {
     margin: 0;
     margin-bottom: 10px;
   }
