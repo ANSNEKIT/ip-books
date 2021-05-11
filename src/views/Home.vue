@@ -19,7 +19,10 @@
       ></app-sort>
     </div>
 
-    <app-no-books v-if="!books.length"></app-no-books>
+    <empty-card
+      v-if="!filteredBooks.length"
+      title="Список книг"
+    ></empty-card>
     <app-books
       v-else
       v-for="(book, identity) in calcSort"
@@ -36,7 +39,7 @@
 
 <script>
 import AppBooks from '../components/AppBooks.vue';
-import AppNoBooks from '../components/AppNoBooks.vue';
+import EmptyCard from '../components/AppEmptyCard.vue';
 import AppFilters from '../components/AppFilters.vue';
 import AppSearch from '../components/AppSearch.vue';
 import AppSort from '../components/AppSort.vue';
@@ -47,13 +50,12 @@ export default {
     AppSort,
     AppSearch,
     AppBooks,
-    AppNoBooks,
+    EmptyCard,
   },
   name: 'Home',
   inject: ['dataBooks', 'favoriteBooks'],
   data() {
     return {
-      books: this.dataBooks,
       filteredBooks: this.dataBooks,
       sortedBooks: [],
     };
@@ -87,6 +89,12 @@ export default {
         if (hasFavoriteBook) {
           const idx = this.searchIndexFavourite(book.id);
           this.favoriteBooks.splice(idx, 1);
+          this.filteredBooks.forEach((el) => {
+            if (el.id === book.id) {
+              // eslint-disable-next-line no-param-reassign
+              el.favourite = !el.favourite;
+            }
+          });
         }
       }
     },
@@ -99,11 +107,11 @@ export default {
       return false;
     },
 
-    searchIndexFavourite(id) {
+    searchIndexFavourite(idx) {
       let identity = null;
-      this.favoriteBooks.forEach((favourite, idx) => {
-        if (favourite.idx === id) {
-          identity = idx;
+      this.favoriteBooks.forEach((favourite, i) => {
+        if (favourite.id === idx) {
+          identity = i;
         }
       });
       return identity;
@@ -122,7 +130,7 @@ export default {
     },
 
     searchBook(id) {
-      return this.dataBooks[id];
+      return this.filteredBooks[id];
     },
 
     searchBooks(str) {
