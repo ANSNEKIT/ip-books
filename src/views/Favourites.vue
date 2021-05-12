@@ -52,7 +52,7 @@ export default {
   },
 
   watch: {
-    favourites() {
+    favoriteBooks() {
       localStorage.setItem('favourites', JSON.stringify(this.favourites));
     },
   },

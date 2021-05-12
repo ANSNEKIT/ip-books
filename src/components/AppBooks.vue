@@ -88,19 +88,19 @@ export default {
   methods: {
     toggleFavouriteIcon() {
       this.isLocalFavourite = !this.isLocalFavourite;
-      this.$emit('add-favourite', this.identity);
+      this.$emit('add-favourite', this.book.id);
     },
 
     upCount() {
       this.localRating += 1;
       this.isActiveButton = !this.isActiveButton;
-      this.$emit('up-count', this.identity);
+      this.$emit('up-count', this.book.id);
     },
 
     downCount() {
       this.localRating -= 1;
       this.isActiveButton = !this.isActiveButton;
-      this.$emit('down-count', this.identity);
+      this.$emit('down-count', this.book.id);
     },
   },
 

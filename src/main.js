@@ -1,6 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import '@babel/polyfill';
-import 'mutationobserver-shim';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { createApp } from 'vue';

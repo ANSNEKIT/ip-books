@@ -35,7 +35,7 @@
         </div>
       </div>
       <button
-        type="reset"
+        type="button"
         @click="clearSort"
         class="button"
       >Сбросить</button>
@@ -57,26 +57,26 @@ export default {
     'sort-name': (val) => typeof val === 'string',
     'sort-rating': (val) => typeof val === 'string',
     'sort-year': (val) => typeof val === 'string',
-    clearSort: null,
+    'clear-sort': null,
   },
   methods: {
     selectedSortByName() {
-      this.$emit('sort-name', this.sort_name);
+      this.$emit('sort-name', this.sort_name, 'sort-name');
       this.sort_rating = '';
       this.sort_year = '';
     },
     selectedSortByRating() {
-      this.$emit('sort-rating', this.sort_rating);
+      this.$emit('sort-rating', this.sort_rating, 'sort-rating');
       this.sort_name = '';
       this.sort_year = '';
     },
     selectedSortByYear() {
-      this.$emit('sort-year', this.sort_year);
+      this.$emit('sort-year', this.sort_year, 'sort-year');
       this.sort_name = '';
       this.sort_rating = '';
     },
     clearSort() {
-      this.$emit('clearSort');
+      this.$emit('clear-sort');
       this.sort_name = '';
       this.sort_rating = '';
       this.sort_year = '';

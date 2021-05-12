@@ -13,7 +13,7 @@ const data = [
     id: 2,
     name: 'Война и мир',
     authors: 'Толстой Л. Н.',
-    publisher: 'ООО &quote;Москва&quote;',
+    publisher: 'ООО "Москва"',
     year: '2020',
     rating: 444,
     isChangeRating: true,

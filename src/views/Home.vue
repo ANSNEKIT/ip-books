@@ -10,19 +10,19 @@
         алвафиту, дате выхода, рейтингу.
       </p>
       <app-search @search="searchBooks"></app-search>
-      <app-filters @filters="dispatchFilteredBooks"></app-filters>
+      <app-filters
+        @filters="dispatchFilteredBooks"
+        @clear-filters="clearFilters"
+      ></app-filters>
       <app-sort
-      @sort-name="sortByName"
-      @sort-rating="sortByRating"
-      @sort-year="sortByYear"
-      @clearSort="clearSort"
+        @sort-name="sort"
+        @sort-rating="sort"
+        @sort-year="sort"
+        @clear-sort="clearSort"
       ></app-sort>
     </div>
 
-    <empty-card
-      v-if="!filteredBooks.length"
-      title="Список книг"
-    ></empty-card>
+    <empty-card v-if="!filteredBooks.length" title="Список книг"></empty-card>
     <app-books
       v-else
       v-for="(book, identity) in calcSort"
@@ -61,8 +61,8 @@ export default {
     };
   },
   methods: {
-    dispatchFavorite(identity) {
-      const book = this.searchBook(identity);
+    dispatchFavorite(bookId) {
+      const book = this.searchBook(bookId);
       book.favourite = !book.favourite;
       if (book.favourite) {
         this.addFavorite(book);
@@ -84,58 +84,67 @@ export default {
     },
 
     removeFavorite(book) {
-      if (this.favoriteBooks.length) {
-        const hasFavoriteBook = this.hasFavourite(book);
-        if (hasFavoriteBook) {
-          const idx = this.searchIndexFavourite(book.id);
-          this.favoriteBooks.splice(idx, 1);
-          this.filteredBooks.forEach((el) => {
-            if (el.id === book.id) {
-              // eslint-disable-next-line no-param-reassign
-              el.favourite = !el.favourite;
-            }
-          });
-        }
+      const hasFavoriteBook = this.hasFavourite(book);
+      const isFavoriteBook = this.favoriteBooks.length && hasFavoriteBook;
+
+      if (isFavoriteBook) {
+        const idx = this.searchIndexArray(book.id, this.favoriteBooks);
+        this.favoriteBooks.splice(idx, 1);
+        this.filteredBooks.forEach((el) => {
+          if (el.id === book.id) {
+            // eslint-disable-next-line no-param-reassign
+            el.favourite = !el.favourite;
+          }
+        });
       }
     },
 
     hasFavourite(book) {
-      const newArr = this.favoriteBooks.map((elem) => elem.id === book.id);
+      const newArr = this.favoriteBooks.filter((elem) => elem.id === book.id);
       if (newArr[0] === true) {
         return true;
       }
       return false;
     },
 
-    searchIndexFavourite(idx) {
-      let identity = null;
-      this.favoriteBooks.forEach((favourite, i) => {
-        if (favourite.id === idx) {
-          identity = i;
+    searchIndexArray(idx, arrName) {
+      const identity = arrName.findIndex((book) => {
+        if (book.id === idx) {
+          return true;
         }
+        return false;
       });
       return identity;
     },
 
-    upCount(identity) {
-      const book = this.searchBook(identity);
-      book.rating += 1;
-      book.isChangeRating = false;
+    upCount(bookId) {
+      const idx = this.searchIndexArray(bookId, this.dataBooks);
+      const dataBook = this.dataBooks[idx];
+      dataBook.rating += 1;
+      dataBook.isChangeRating = false;
     },
 
-    downCount(identity) {
-      const book = this.searchBook(identity);
-      book.rating -= 1;
-      book.isChangeRating = false;
+    downCount(bookId) {
+      const idx = this.searchIndexArray(bookId, this.dataBooks);
+      const dataBook = this.dataBooks[idx];
+      dataBook.rating -= 1;
+      dataBook.isChangeRating = false;
     },
 
-    searchBook(id) {
-      return this.filteredBooks[id];
+    searchBook(bookId) {
+      const searchBookData = this.filteredBooks;
+      const idx = searchBookData.findIndex((book) => {
+        if (book.id === bookId) {
+          return true;
+        }
+        return false;
+      });
+      return searchBookData[idx];
     },
 
     searchBooks(str) {
       // eslint-disable-next-line arrow-body-style
-      const resultBooks = this.dataBooks.filter((book) => {
+      const resultBooks = this.filteredBooks.filter((book) => {
         return book.name.toLowerCase().includes(str.toLowerCase());
       });
       this.filteredBooks = resultBooks;
@@ -160,120 +169,82 @@ export default {
       this.filteredBooks = authorsFilter;
     },
 
-    sortByName(type) {
-      this.sortedBooks = [];
-      const sortedBooks = [...this.filteredBooks];
-      if (type === 'a-z') {
-        sortedBooks.sort((a, b) => {
-          const firstName = a.name.toLowerCase();
-          const lastName = b.name.toLowerCase();
-
-          if (firstName < lastName) {
-            return -1;
-          }
-
-          if (firstName > lastName) {
-            return 1;
-          }
-
-          return 0;
-        });
-      }
-
-      if (type === 'z-a') {
-        sortedBooks.sort((a, b) => {
-          const firstName = a.name.toLowerCase();
-          const lastName = b.name.toLowerCase();
-
-          if (firstName < lastName) {
-            return 1;
-          }
-
-          if (firstName > lastName) {
-            return -1;
-          }
-
-          return 0;
-        });
-      }
-
-      this.sortedBooks = sortedBooks;
+    clearFilters() {
+      this.filteredBooks = this.dataBooks;
     },
 
-    sortByRating(type) {
+    sort(type, sortName) {
       this.sortedBooks = [];
+
       const sortedBooks = [...this.filteredBooks];
-      if (type === 'a-z') {
-        sortedBooks.sort((a, b) => {
-          const first = +a.rating;
-          const last = +b.rating;
 
-          if (first < last) {
-            return 1;
-          }
+      const sortUpStr = (a, b) => {
+        const firstSymbol = a.name.toLowerCase();
+        const lastSymbol = b.name.toLowerCase();
 
-          if (first > last) {
-            return -1;
-          }
-
+        if (firstSymbol === lastSymbol) {
           return 0;
-        });
+        }
+
+        return firstSymbol > lastSymbol ? 1 : -1;
+      };
+
+      const sortDownStr = (a, b) => {
+        const firstName = a.name.toLowerCase();
+        const lastName = b.name.toLowerCase();
+
+        if (firstName === lastName) {
+          return 0;
+        }
+
+        return firstName > lastName ? -1 : 1;
+      };
+
+      const sortUpRating = (a, b) => {
+        const first = +a.rating;
+        const last = +b.rating;
+
+        return last - first;
+      };
+
+      const sortDownRating = (a, b) => {
+        const first = +a.rating;
+        const last = +b.rating;
+
+        return first - last;
+      };
+
+      const sortUpYear = (a, b) => {
+        const first = +a.year;
+        const last = +b.year;
+
+        return last - first;
+      };
+
+      const sortDownYear = (a, b) => {
+        const first = +a.year;
+        const last = +b.year;
+
+        return first - last;
+      };
+
+      if (type === 'a-z' && sortName === 'sort-name') {
+        sortedBooks.sort(sortUpStr);
       }
-
-      if (type === 'z-a') {
-        sortedBooks.sort((a, b) => {
-          const first = +a.rating;
-          const last = +b.rating;
-
-          if (first < last) {
-            return -1;
-          }
-
-          if (first > last) {
-            return 1;
-          }
-
-          return 0;
-        });
+      if (type === 'z-a' && sortName === 'sort-name') {
+        sortedBooks.sort(sortDownStr);
       }
-
-      this.sortedBooks = sortedBooks;
-    },
-    sortByYear(type) {
-      this.sortedBooks = [];
-      const sortedBooks = [...this.filteredBooks];
-      if (type === 'a-z') {
-        sortedBooks.sort((a, b) => {
-          const first = +a.year;
-          const last = +b.year;
-
-          if (first < last) {
-            return 1;
-          }
-
-          if (first > last) {
-            return -1;
-          }
-
-          return 0;
-        });
+      if (type === 'a-z' && sortName === 'sort-rating') {
+        sortedBooks.sort(sortUpRating);
       }
-
-      if (type === 'z-a') {
-        sortedBooks.sort((a, b) => {
-          const first = +a.year;
-          const last = +b.year;
-
-          if (first < last) {
-            return -1;
-          }
-
-          if (first > last) {
-            return 1;
-          }
-
-          return 0;
-        });
+      if (type === 'z-a' && sortName === 'sort-rating') {
+        sortedBooks.sort(sortDownRating);
+      }
+      if (type === 'a-z' && sortName === 'sort-year') {
+        sortedBooks.sort(sortUpYear);
+      }
+      if (type === 'z-a' && sortName === 'sort-year') {
+        sortedBooks.sort(sortDownYear);
       }
 
       this.sortedBooks = sortedBooks;
@@ -301,17 +272,21 @@ export default {
       this.sortedBooks = JSON.parse(sortedBooks);
     }
     if (filteredBooks) {
-      this.filteredBooks = JSON.parse(sortedBooks);
+      this.filteredBooks = JSON.parse(filteredBooks);
     }
   },
 
   watch: {
     sortedBooks() {
-      localStorage.setItem('sorted-books', JSON.stringify(this.sortedBooks));
+      if (this.sortedBooks) {
+        localStorage.setItem('sorted-books', JSON.stringify(this.sortedBooks));
+      }
     },
 
-    filteredBooks() {
-      localStorage.setItem('filtered-books', JSON.stringify(this.filteredBooks));
+    dataBooks() {
+      if (this.filteredBooks) {
+        localStorage.setItem('filtered-books', JSON.stringify(this.filteredBooks));
+      }
     },
   },
 };

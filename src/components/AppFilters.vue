@@ -54,7 +54,7 @@
         value="submit">
         Применить
       </button>
-      <button type="reset" class="button">Сбросить</button>
+      <button @click="clearFilters" type="button" class="button">Сбросить</button>
     </form>
     <hr>
   </div>
@@ -72,6 +72,15 @@ export default {
   },
   emits: {
     filters: (val) => typeof val === 'object',
+    'clear-filters': null,
+  },
+  methods: {
+    clearFilters() {
+      this.$emit('clear-filters');
+      this.publisher = '';
+      this.year = '';
+      this.authors = '';
+    },
   },
 
 };
